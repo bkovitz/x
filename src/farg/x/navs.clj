@@ -5,10 +5,23 @@
             [clojure.pprint :refer [pprint]]
             [com.rpl.specter :as S :refer :all]
             [com.rpl.specter.util-macros :refer [doseqres]]
+            [farg.util :as util :refer [dd dde]]
             [farg.with-state :refer [with-state]]
-            #_[loom.graph :as lg]
-            #_[loom.attr :as la]
             [ubergraph.core :as uber :refer [ubergraph?]]))
+
+(defn has-key?
+ ([k]
+  (partial has-key? k))
+ ([k x]
+  (and (map? x) (contains? x k))))
+
+(defn keywalker [k]
+  (comp-paths (walker (has-key? k)) k))
+
+(defn kvwalker [k v]
+  (comp-paths (walker (has-key? k)) #(= v (get % k))))
+
+;;; Graph navigators
 
 (defn- rename-nodes [g m-old->new]
   ;STUB TODO
@@ -75,7 +88,12 @@
           newg (uber/set-attrs g node ret)]
       [newg node])))
 
-;(defn update-nodes [g {:keys [renamed removed new-attrs]}]
+(defn update-nodes [g {:keys [renamed removed new-attrs]}]
+  ;TODO rename
+  (with-state [g g]
+    (uber/remove-nodes* removed)
+    (doseq [[node attrs] new-attrs]
+      (uber/set-attrs node attrs))))
 
 (defnav
   ^{:doc "All nodes in graph g."} ;TODO 
@@ -84,25 +102,23 @@
     (doseqres NONE [node (uber/nodes g)]
       (next-fn [g node])))
   (transform* [this g next-fn]
-    #_(with-state [m {:renamed {} :removed #{} :new-attrs {}}]
-      (doseq [oldnode (uber/nodes g)]
-        ;I think this is wrong. How do we find out about new nodes?
-        (bind ret (next-fn [g oldnode]))
-        (if (identical? ret NONE)
-          (update :removed conj oldnode)
-          (do
-            (bind [newg newnode] ret)
-            (if (identical? newnode NONE)
-              (update :removed conj oldnode)
-              (do
-                (bind new-attrs (uber/attrs newg newnode))
-                (when (not (identical? new-attrs (uber/attrs g oldnode)))
-                  (update :new-attrs assoc newnode new-attrs))
-                (when (not= oldnode newnode)
-                  (update :renamed assoc oldnode newnode)))))))
-      (update-nodes g m))
-    g ;TODO STUB  I'm not sure of next-fn's calling protocol here
-    ))
+    (update-nodes g
+      (with-state [m {:renamed {} :removed #{} :new-attrs {}}]
+        (doseq [oldnode (uber/nodes g)]
+          ;I think this is wrong. How do we find out about new nodes?
+          (bind ret (next-fn [g oldnode]))
+          (if (identical? ret NONE)
+            (update :removed conj oldnode)
+            (do
+              (bind [newg newnode] ret)
+              (if (identical? newnode NONE)
+                (update :removed conj oldnode)
+                (do
+                  (bind new-attrs (uber/attrs newg newnode))
+                  (when (not (identical? new-attrs (uber/attrs g oldnode)))
+                    (update :new-attrs assoc newnode new-attrs))
+                  (when (not= oldnode newnode)
+                    (update :renamed assoc oldnode newnode)))))))))))
 
 ;TODO UT
 (defnav
