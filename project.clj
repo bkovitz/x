@@ -8,4 +8,8 @@
                  [farg/util "0.1.0-SNAPSHOT"]
                  [farg/with-state "0.0.1-SNAPSHOT"]
                  [org.clojure/clojure "1.9.0"]
-                 [ubergraph "0.4.0"]])
+                 [ubergraph "0.4.0"]]
+  :repl-options {:init (do
+    (use 'farg.x.javafx)
+    (javafx.embed.swing.JFXPanel.)
+    (. javafx.application.Platform setImplicitExit false))})
