@@ -12,6 +12,7 @@ pom.xml.asc
 tags
 .nrepl-history
 .nrepl-port
+.autosave.rkt
 
 .*.sw?
 .nfs*

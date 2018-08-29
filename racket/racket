@@ -1,0 +1,106 @@
+On Thursday, August 23, 2018 at 2:49:32 PM UTC-4, David K. Storrs wrote:
+
+
+
+    On Thu, Aug 23, 2018 at 1:02 PM Ben Kovitz <bko...@gmail.com> wrote:
+
+
+          In Clojure, the data structures of first resort are map and vector.
+          What's the equivalent in Racket--the short list of bread-and-butter data
+          structures that you reach for first when writing production code? How do
+          you, say, accumulate a sequence of items, like conj'ing to a vector in
+          Clojure? Do you usually do nested data structures in Racket, or do you
+          normally keep them flat, as in Python?
+
+
+    For me, the first resorts in Racket are list and hash.  If I'm going to do any heavy lifting with it then I move to struct:
+
+    (hash 'username 'bob 'age 18)  ; quick and easy, works well with database, useful print representation.  Weak against typos, not easy to identify what a hash represents
+
+    (struct user (username age) #:transparent) ; transparent means "show field values when printing"
+    (user 'bob 18) ; well-defined accessors and setters so not vulnerable to typos, has an inbuilt predicate to identify 'user' structs.
+
+          How do you print stuff in the REPL so you can see what's in it? For example,
+          if I print a graph in DrRacket, all I see is this: #<unweighted-graph>
+
+
+    For structs you put the #:transparent keyword on it when you define the struct.  I haven't worked with graphs.
+
+
+
+On Friday, August 24, 2018 at 8:39:43 PM UTC-4, Miodrag Milenkovic replied to me:
+>> Ah, thanks! I spent about an hour trying to figure out inspectors and didn't get anywhere, and I never would have guessed that :transparent means to make the struct printable. This is the kind of thing I'm looking for: very simple stuff that's crucial to know to be productive and usually takes only a couple minutes to explain in person but is omitted in documentation.
+>
+> :transparent is definitely mentioned in the guide chapter on structures, maybe ch 5
+
+Yep, section 5.4: https://docs.racket-lang.org/guide/define-struct.html#%28part._trans-struct%29
+When I first read it, I misunderstood the main point as preventing reflection
+in order to prevent clients of a library from depending on implementation
+details—and promptly put it out of my head as something I could ignore for
+now. It didn't occur to me that in everyday programming, you should normally
+specify #:transparent when defining a struct. That's the kind of information
+I'm looking for--the elementary, practical things that you typically learn in
+the first few days of pair-programming with someone experienced, or in six
+months of beating your head against a new language completely on your own.
+(I'd prefer not to go the latter route.)
+
+Ben
+
+
+
+
+On Friday, August 24, 2018 at 9:33:12 PM UTC-4, Robby Findler wrote:
+> The racket documentation is organized into two documents.
+> …
+> Guide: http://docs.racket-lang.org/guide/define-struct.html 
+> 
+> Reference:  http://docs.racket-lang.org/reference/define-struct.html 
+
+I noticed the separate User's Guide and Reference, and indeed that's one
+reason I'm considering Racket for practical use right now. This two-document
+structure used to be commonplace in software. I think it's a really good,
+effective approach and I'm glad to see it in use again.
+
+I'm asking for something much smaller than a User's Guide, though: a little
+collection of the down-and-dirty stuff that you need to know to be productive,
+beyond knowing the syntax and semantics of the language. Often this kind of
+information goes undocumented and is learned only by word of mouth. Sometimes
+it's documented in tutorials, but I haven't found a tutorial for this yet.
+The DrRacket documentation may well already have it; I haven't read much of
+that yet.
+
+A really narrow "Welcome to Racket" tutorial specifically for people coming
+over from Clojure would be the most efficient thing for me to read, but I
+realize that this may be asking more than is feasible. However, I am willing
+to help write one in collaboration with someone who already knows their way
+around Racket. The best time to write such a thing is while beginning—when the
+stuff that goes without saying because everyone knows it is still getting said.
+
+Ben
+
+
+hth, 
+Robby 
+On Fri, Aug 24, 2018 at 7:15 PM Ben Kovitz <bko...@gmail.com> wrote: 
+> 
+> On Thursday, August 23, 2018 at 2:49:32 PM UTC-4, David K. Storrs wrote: 
+> 
+>> For me, the first resorts in Racket are list and hash.  If I'm going to do any heavy lifting with it then I move to struct: 
+>> 
+>> (hash 'username 'bob 'age 18)  ; quick and easy, works well with database, useful print representation.  Weak against typos, not easy to identify what a hash represents 
+>> 
+>> (struct user (username age) #:transparent) ; transparent means "show field values when printing" 
+>> (user 'bob 18) ; well-defined accessors and setters so not vulnerable to typos, has an inbuilt predicate to identify 'user' structs. 
+> 
+> 
+> Ah, thanks! I spent about an hour trying to figure out inspectors and didn't get anywhere, and I never would have guessed that :transparent means to make the struct printable. This is the kind of thing I'm looking for: very simple stuff that's crucial to know to be productive and usually takes only a couple minutes to explain in person but is omitted in documentation. 
+> 
+> I take it, then, that no collection of these little things exists yet? 
+> 
+> Ben 
+> 
+> 
+> -- 
+> You received this message because you are subscribed to the Google Groups "Racket Users" group. 
+> To unsubscribe from this group and stop receiving emails from it, send an email to racket-users...@googlegroups.com. 
+> For more options, visit https://groups.google.com/d/optout. 
